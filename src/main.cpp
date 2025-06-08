@@ -8,7 +8,6 @@ class evaluation_wrapper
     public:
     evaluation_wrapper()
     {
-        std::cout<<"wrapper intialized !\n";
     }
 
     void handle(std::string input_buffer)
@@ -26,6 +25,8 @@ int main()
     {
         std::cout<<"privateDb : ";
         std::getline(std::cin,input_buffer);
+        if(input_buffer=="exit") exit(0);
+        main_wrapper.handle(input_buffer);
     }
     return 0;
 }
