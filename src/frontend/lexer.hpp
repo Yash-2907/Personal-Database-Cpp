@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include<unordered_map>
 
 typedef enum
 {
@@ -13,7 +14,23 @@ typedef enum
     token_integer,
     token_left_paren,
     token_right_paren,
-    token_comma
+    token_comma,
+    token_delete,
+    token_from,
+    token_search,
+    token_in,
+    token_create,
+    token_new,
+    token_database,
+    token_table,
+    token_use,
+    token_update,
+    token_where,
+    token_with,
+    token_equals,
+    token_less_than,
+    token_greater_than
+
 } token_set;
 
 struct token
@@ -30,6 +47,23 @@ private:
     std::string input_buffer;
     char current;
     std::vector<token> token_list;
+    std::unordered_map<std::string,token_set> keyword_map={
+        {"insert",token_insert},
+        {"into",token_into},
+        {"value",token_value},
+        {"delete",token_delete},
+        {"from",token_from},
+        {"search",token_search},
+        {"in",token_in},
+        {"create",token_create},
+        {"new",token_new},
+        {"database",token_database},
+        {"table",token_table},
+        {"use",token_use},
+        {"update",token_update},
+        {"where",token_where},
+        {"with",token_with},
+    };
 
     std::string token_type_to_string(token_set local_token_set)
     {
@@ -51,6 +85,36 @@ private:
             return "token_right_paranthesis";
         case 7:
             return "token_comma";
+        case 8:
+            return "token_delete";
+        case 9:
+            return "token_from";
+        case 10:
+            return "token_search";
+        case 11:
+            return "token_in";
+        case 12:
+            return "token_create";
+        case 13:
+            return "token_new";
+        case 14:
+            return "token_database";
+        case 15:
+            return "token_table";
+        case 16:
+            return "token_use";
+        case 17:
+            return "token_update";
+        case 18:
+            return "token_where";
+        case 19:
+            return "token_with";
+        case 20:
+            return "token_equals";
+        case 21:
+            return "token_less_than";
+        case 22:
+            return "token_greater_than";
         default:
             return "[!] ERROR IDENTIFYING TOKEN -> " + (local_token_set);
         }
@@ -80,12 +144,12 @@ private:
     {
         std::string local_buffer;
         token local_token;
-        while (isalpha(current))
+        while (isalpha(current) || current == '_')
         {
             local_buffer.push_back(current);
             advance();
         }
-        local_token.token_type = token_string;
+        local_token.token_type = !keyword_map.count(local_buffer) ? token_string : keyword_map[local_buffer];
         local_token.value = local_buffer;
         token_list.push_back(local_token);
     }
@@ -146,7 +210,7 @@ public:
         while (current)
         {
             skip_whitespace();
-            if (isalpha(current))
+            if (isalpha(current) || current=='_')
             {
                 tokenize_alpha();
             }
@@ -171,6 +235,21 @@ public:
                 case ',':
                 {
                     tokenize_special_char(token_comma);
+                    break;
+                }
+                case '=':
+                {
+                    tokenize_special_char(token_equals);
+                    break;
+                }
+                case '<':
+                {
+                    tokenize_special_char(token_less_than);
+                    break;
+                }
+                case '>':
+                {
+                    tokenize_special_char(token_greater_than);
                     break;
                 }
                 default:
