@@ -53,9 +53,6 @@ private:
     std::string input_buffer;
     char current;
     std::vector<token> token_list;
-    std::unordered_map<int, std::string> status = {
-        {0, " SUCCESSFULLY EXECUTED THE COMMAND IN 0.52ms "},
-        {1, "   FAILED TO EXECUTE THE COMMAND AT 0.13ms   "}};
     std::unordered_map<std::string, token_set> keyword_map = {
         {"insert", token_insert},
         {"into", token_into},
@@ -257,7 +254,7 @@ public:
         current = input_buffer[0];
     }
 
-    void tokenize(std::string input_buffer)
+    int tokenize(std::string input_buffer)
     {
         int execution_status = 0;
         while (current && execution_status == 0)
@@ -322,10 +319,8 @@ public:
         }
         if (execution_status == 0)
             displayToken();
-        std::cout << "\n-----------------------------------------------\n";
-        std::cout << blue << "$" << (execution_status == 0 ? green : red) << status[execution_status] <<blue<< "$"<< white <<"\n";
-        std::cout <<"-----------------------------------------------\n\n";
         reset();
+        return execution_status;
     }
 };
 
