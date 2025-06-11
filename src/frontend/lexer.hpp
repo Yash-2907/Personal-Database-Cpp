@@ -149,7 +149,7 @@ private:
     {
         std::string local_buffer;
         token local_token;
-        while (current && current != ' ')
+        while (isalpha(current) || isalnum(current) || current=='_')
         {
             local_buffer.push_back(current);
             advance();
@@ -164,14 +164,14 @@ private:
     {
         std::string local_buffer;
         token local_token;
-        while (current)
+        while (isdigit(current) || isalpha(current))
         {
             if (isdigit(current))
             {
                 local_buffer.push_back(current);
                 advance();
             }
-            else
+            else if(isalpha(current))
             {
                 while (current && current != ' ')
                 {
@@ -195,7 +195,7 @@ private:
         local_token.value = current;
         advance();
         token_list.push_back(local_token);
-        return 1;
+        return 0;
     }
 
     void reset()
