@@ -30,7 +30,8 @@ typedef enum
     token_equals,
     token_less_than,
     token_greater_than,
-    token_exit
+    token_exit,
+    token_id
 } token_set;
 
 struct token
@@ -66,7 +67,8 @@ private:
         {"update", token_update},
         {"where", token_where},
         {"with", token_with},
-        {"exit", token_exit}};
+        {"exit", token_exit},
+    };
 
     std::string token_type_to_string(token_set local_token_set)
     {
@@ -120,6 +122,8 @@ private:
             return "token_greater_than";
         case 23:
             return "token_exit";
+        case 24:
+            return "token_id";
         default:
             return "[!] ERROR IDENTIFYING TOKEN -> " + (local_token_set);
         }
@@ -141,20 +145,41 @@ private:
 
     void skip_whitespace()
     {
-        while (cursor < length && input_buffer[cursor] == ' ')
+        while (current && current == ' ')
             advance();
     }
 
-    int tokenize_alpha()
+    int tokenize_string()
     {
+        advance();
         std::string local_buffer;
         token local_token;
-        while (isalpha(current) || isalnum(current) || current=='_')
+        while (current && current!='"')
         {
             local_buffer.push_back(current);
             advance();
         }
-        local_token.token_type = !keyword_map.count(local_buffer) ? token_string : keyword_map[local_buffer];
+        if(!current){
+            std::cout<<"[!] NO ENDING QUOTES ADDED FOR THE STRING\n";
+            return 1;
+        }
+        local_token.token_type =  token_string;
+        local_token.value = local_buffer;
+        token_list.push_back(local_token);
+        advance();
+        return 0;
+    }
+
+    int tokenize_id()
+    {
+        std::string local_buffer;
+        token local_token;
+        while (isalpha(current) || isalnum(current) || current == '_')
+        {
+            local_buffer.push_back(current);
+            advance();
+        }
+        local_token.token_type = !keyword_map.count(local_buffer) ? token_id : keyword_map[local_buffer];
         local_token.value = local_buffer;
         token_list.push_back(local_token);
         return 0;
@@ -171,14 +196,14 @@ private:
                 local_buffer.push_back(current);
                 advance();
             }
-            else if(isalpha(current))
+            else if (isalpha(current))
             {
                 while (current && current != ' ')
                 {
                     local_buffer.push_back(current);
                     advance();
                 }
-                std::cout << "[!] ERROR : A STRING NAME CAN ONLY START WITH A CHARACTER -> " << local_buffer << std::endl;
+                std::cout << "[!] ERROR : A VARIABLE NAME CAN ONLY START WITH A CHARACTER -> " << local_buffer << std::endl;
                 return 1;
             }
         }
@@ -228,13 +253,15 @@ public:
 
     void tokenize(std::string input_buffer)
     {
-        int execution_status=0;
-        while (current && execution_status==0)
+        int execution_status = 0;
+        while (current && execution_status == 0)
         {
             skip_whitespace();
-            if (isalpha(current) || current == '_')
+            if (!current)
+                break;
+            else if (isalpha(current) || current == '_')
             {
-                execution_status = tokenize_alpha();
+                execution_status = tokenize_id();
             }
             else if (isdigit(current))
             {
@@ -266,25 +293,30 @@ public:
                 }
                 case '<':
                 {
-                    std::cout << status[execution_status = tokenize_special_char(token_less_than)] << "\n\n";
+                    execution_status = tokenize_special_char(token_less_than);
                     break;
                 }
                 case '>':
                 {
-                    std::cout << status[execution_status = tokenize_special_char(token_greater_than)] << "\n\n";
+                    execution_status = tokenize_special_char(token_greater_than);
+                    break;
+                }
+                case '"':
+                {
+                    execution_status= tokenize_string();
                     break;
                 }
                 default:
                 {
                     std::cout << "[!] ERROR : UNINDENTIFIED CHARACTER -> " << current << std::endl;
-                    execution_status=1;
+                    execution_status = 1;
                 }
                 }
             }
         }
         if (execution_status == 0)
             displayToken();
-        std::cout<<"\n"<<status[execution_status]<<"\n\n";
+        std::cout << "\n" << status[execution_status] << "\n\n";
         reset();
     }
 };
