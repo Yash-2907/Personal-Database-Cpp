@@ -5,6 +5,11 @@
 #include <vector>
 #include <unordered_map>
 
+#define blue "\033[34m"
+#define red "\e[0;31m"
+#define green "\e[0;32m"
+#define white "\e[0;37m"
+
 typedef enum
 {
     token_insert,
@@ -49,8 +54,8 @@ private:
     char current;
     std::vector<token> token_list;
     std::unordered_map<int, std::string> status = {
-        {0, "$ SUCCESSFULLY EXECUTED THE COMMAND IN 0.52ms $"},
-        {1, "$ FAILED TO EXECUTE THE COMMAND AT 0.13ms $"}};
+        {0, " SUCCESSFULLY EXECUTED THE COMMAND IN 0.52ms "},
+        {1, "   FAILED TO EXECUTE THE COMMAND AT 0.13ms   "}};
     std::unordered_map<std::string, token_set> keyword_map = {
         {"insert", token_insert},
         {"into", token_into},
@@ -154,16 +159,17 @@ private:
         advance();
         std::string local_buffer;
         token local_token;
-        while (current && current!='"')
+        while (current && current != '"')
         {
             local_buffer.push_back(current);
             advance();
         }
-        if(!current){
-            std::cout<<"[!] NO ENDING QUOTES ADDED FOR THE STRING\n";
+        if (!current)
+        {
+            std::cout << red << "[!] NO ENDING QUOTES ADDED FOR THE STRING" << white << std::endl;
             return 1;
         }
-        local_token.token_type =  token_string;
+        local_token.token_type = token_string;
         local_token.value = local_buffer;
         token_list.push_back(local_token);
         advance();
@@ -203,7 +209,7 @@ private:
                     local_buffer.push_back(current);
                     advance();
                 }
-                std::cout << "[!] ERROR : A VARIABLE NAME CAN ONLY START WITH A CHARACTER -> " << local_buffer << std::endl;
+                std::cout << red << "[!] ERROR : A VARIABLE NAME CAN ONLY START WITH A CHARACTER -> " << local_buffer << white << std::endl;
                 return 1;
             }
         }
@@ -303,12 +309,12 @@ public:
                 }
                 case '"':
                 {
-                    execution_status= tokenize_string();
+                    execution_status = tokenize_string();
                     break;
                 }
                 default:
                 {
-                    std::cout << "[!] ERROR : UNINDENTIFIED CHARACTER -> " << current << std::endl;
+                    std::cout << red << "[!] ERROR : UNINDENTIFIED CHARACTER -> " << current << white << std::endl;
                     execution_status = 1;
                 }
                 }
@@ -316,7 +322,9 @@ public:
         }
         if (execution_status == 0)
             displayToken();
-        std::cout << "\n" << status[execution_status] << "\n\n";
+        std::cout << "\n-----------------------------------------------\n";
+        std::cout << blue << "$" << (execution_status == 0 ? green : red) << status[execution_status] <<blue<< "$"<< white <<"\n";
+        std::cout <<"-----------------------------------------------\n\n";
         reset();
     }
 };
