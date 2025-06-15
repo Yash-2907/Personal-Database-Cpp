@@ -13,6 +13,18 @@ private:
     lexer &lexer_obj;
     std::vector<token> &token_list;
 
+    typedef enum
+    {
+        node_create_database,
+        node_create_table,
+        node_use,
+        node_search,
+        node_delete,
+        node_insert,
+        node_update,
+        node_exit
+    } node;
+
     int parse_insert()
     {
         return 0;
@@ -50,6 +62,34 @@ private:
 
 public:
     parser(lexer &lexer_obj) : lexer_obj(lexer_obj), token_list(lexer_obj.fetch_vector()) {};
+
+    std::string node_type_to_string(node local_node)
+    {
+        switch (local_node)
+        {
+        case node_create_database:
+            return "node_create_database";
+        case node_create_table:
+            return "node_create_table";
+        case node_use:
+            return "node_use";
+        case node_search:
+            return "node_search";
+        case node_delete:
+            return "node_delete";
+        case node_insert:
+            return "node_insert";
+        case node_update:
+            return "node_update";
+        case node_exit:
+            return "node_exit";
+        default :
+        {
+            return "[!] SYTNAX ERROR : UNIDENTIFIED NODE -> "+ local_node;
+        }
+        }
+    }
+
     int parse()
     {
         for (auto &it : token_list)
@@ -72,7 +112,7 @@ public:
                 return parse_update();
             default:
             {
-                std::cout <<red<< "[!] SYNTAX ERROR : UNDEFINED TOKEN -> " << it.value <<white<< std::endl;
+                std::cout << red << "[!] SYNTAX ERROR : UNDEFINED TOKEN -> " << it.value << white << std::endl;
                 return 1;
             }
             }
