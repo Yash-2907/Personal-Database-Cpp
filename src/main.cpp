@@ -25,9 +25,14 @@ public:
         auto start = std::chrono::high_resolution_clock::now();
         lexer_obj.initialize(input_buffer);
         lexer_status = lexer_obj.tokenize(input_buffer);
-        print_execution_result(lexer_status, start);
-        if(lexer_status==1) return;
-        parser_obj=new parser(lexer_obj);
+        if (lexer_status == 1)
+        {
+            print_execution_result(lexer_status, start);
+            return;
+        };
+        parser_obj = new parser(lexer_obj);
+        parser_status = parser_obj->parse();
+        print_execution_result(parser_status, start);
     }
     void print_execution_result(int execution_status_lexer, auto start)
     {

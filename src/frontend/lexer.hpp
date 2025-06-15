@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
-
 #define blue "\033[34m"
 #define red "\e[0;31m"
 #define green "\e[0;32m"
@@ -71,65 +70,6 @@ private:
         {"with", token_with},
         {"exit", token_exit},
     };
-
-    std::string token_type_to_string(token_set local_token_set)
-    {
-        switch (local_token_set)
-        {
-        case 0:
-            return "token_insert";
-        case 1:
-            return "token_into";
-        case 2:
-            return "token_value";
-        case 3:
-            return "token_string";
-        case 4:
-            return "token_integer";
-        case 5:
-            return "token_left_parenthesis";
-        case 6:
-            return "token_right_paranthesis";
-        case 7:
-            return "token_comma";
-        case 8:
-            return "token_delete";
-        case 9:
-            return "token_from";
-        case 10:
-            return "token_search";
-        case 11:
-            return "token_in";
-        case 12:
-            return "token_create";
-        case 13:
-            return "token_new";
-        case 14:
-            return "token_database";
-        case 15:
-            return "token_table";
-        case 16:
-            return "token_use";
-        case 17:
-            return "token_update";
-        case 18:
-            return "token_where";
-        case 19:
-            return "token_with";
-        case 20:
-            return "token_equals";
-        case 21:
-            return "token_less_than";
-        case 22:
-            return "token_greater_than";
-        case 23:
-            return "token_exit";
-        case 24:
-            return "token_id";
-        default:
-            return "[!] LEXER ERROR IDENTIFYING TOKEN -> " + (local_token_set);
-        }
-    }
 
     void advance()
     {
@@ -240,6 +180,65 @@ public:
     {
     }
 
+    std::string token_type_to_string(token_set local_token_set)
+    {
+        switch (local_token_set)
+        {
+        case 0:
+            return "token_insert";
+        case 1:
+            return "token_into";
+        case 2:
+            return "token_value";
+        case 3:
+            return "token_string";
+        case 4:
+            return "token_integer";
+        case 5:
+            return "token_left_parenthesis";
+        case 6:
+            return "token_right_paranthesis";
+        case 7:
+            return "token_comma";
+        case 8:
+            return "token_delete";
+        case 9:
+            return "token_from";
+        case 10:
+            return "token_search";
+        case 11:
+            return "token_in";
+        case 12:
+            return "token_create";
+        case 13:
+            return "token_new";
+        case 14:
+            return "token_database";
+        case 15:
+            return "token_table";
+        case 16:
+            return "token_use";
+        case 17:
+            return "token_update";
+        case 18:
+            return "token_where";
+        case 19:
+            return "token_with";
+        case 20:
+            return "token_equals";
+        case 21:
+            return "token_less_than";
+        case 22:
+            return "token_greater_than";
+        case 23:
+            return "token_exit";
+        case 24:
+            return "token_id";
+        default:
+            return "[!] LEXER ERROR IDENTIFYING TOKEN -> " + (local_token_set);
+        }
+    }
+
     void displayToken()
     {
         for (auto &it : token_list)
@@ -317,7 +316,7 @@ public:
                 }
                 default:
                 {
-                    std::cout << red << "[!] LEXER ERROR : UNINDENTIFIED CHARACTER -> " << current << white << std::endl;
+                    std::cout << red << "\n[!] LEXER ERROR : UNINDENTIFIED CHARACTER -> " << current << white << std::endl;
                     execution_status = 1;
                 }
                 }
