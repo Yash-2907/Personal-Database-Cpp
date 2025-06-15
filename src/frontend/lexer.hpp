@@ -127,7 +127,7 @@ private:
         case 24:
             return "token_id";
         default:
-            return "[!] ERROR IDENTIFYING TOKEN -> " + (local_token_set);
+            return "[!] LEXER ERROR IDENTIFYING TOKEN -> " + (local_token_set);
         }
     }
 
@@ -163,7 +163,7 @@ private:
         }
         if (!current)
         {
-            std::cout << red << "[!] NO ENDING QUOTES ADDED FOR THE STRING" << white << std::endl;
+            std::cout << red << "[!] LEXER ERROR : NO ENDING QUOTES ADDED FOR THE STRING" << white << std::endl;
             return 1;
         }
         local_token.token_type = token_string;
@@ -206,7 +206,7 @@ private:
                     local_buffer.push_back(current);
                     advance();
                 }
-                std::cout << red << "[!] ERROR : A VARIABLE NAME CAN ONLY START WITH A CHARACTER -> " << local_buffer << white << std::endl;
+                std::cout << red << "[!] LEXER ERROR : A VARIABLE NAME CAN ONLY START WITH A CHARACTER -> " << local_buffer << white << std::endl;
                 return 1;
             }
         }
@@ -248,10 +248,16 @@ public:
 
     void initialize(std::string input_buffer)
     {
+        reset();
         cursor = 0;
         length = input_buffer.size();
         this->input_buffer = input_buffer;
         current = input_buffer[0];
+    }
+
+    std::vector<token>& fetch_vector()
+    {
+        return token_list;
     }
 
     int tokenize(std::string input_buffer)
@@ -311,7 +317,7 @@ public:
                 }
                 default:
                 {
-                    std::cout << red << "[!] ERROR : UNINDENTIFIED CHARACTER -> " << current << white << std::endl;
+                    std::cout << red << "[!] LEXER ERROR : UNINDENTIFIED CHARACTER -> " << current << white << std::endl;
                     execution_status = 1;
                 }
                 }
@@ -319,7 +325,6 @@ public:
         }
         if (execution_status == 0)
             displayToken();
-        reset();
         return execution_status;
     }
 };
