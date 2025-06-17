@@ -29,7 +29,8 @@ typedef enum
     token_less_than,
     token_greater_than,
     token_exit,
-    token_id
+    token_id,
+    token_end_of_input,
 } token_set;
 
 struct token
@@ -178,56 +179,58 @@ public:
     {
         switch (local_token_set)
         {
-        case 0:
+        case token_insert:
             return "token_insert";
-        case 1:
+        case token_into:
             return "token_into";
-        case 2:
+        case token_value:
             return "token_value";
-        case 3:
+        case token_string:
             return "token_string";
-        case 4:
+        case token_integer:
             return "token_integer";
-        case 5:
+        case token_left_paren:
             return "token_left_parenthesis";
-        case 6:
+        case token_right_paren:
             return "token_right_paranthesis";
-        case 7:
+        case token_comma:
             return "token_comma";
-        case 8:
+        case token_delete:
             return "token_delete";
-        case 9:
+        case token_from:
             return "token_from";
-        case 10:
+        case token_search:
             return "token_search";
-        case 11:
+        case token_in:
             return "token_in";
-        case 12:
+        case token_create:
             return "token_create";
-        case 13:
+        case token_new:
             return "token_new";
-        case 14:
+        case token_database:
             return "token_database";
-        case 15:
+        case token_table:
             return "token_table";
-        case 16:
+        case token_use:
             return "token_use";
-        case 17:
+        case token_update:
             return "token_update";
-        case 18:
+        case token_where:
             return "token_where";
-        case 19:
+        case token_with:
             return "token_with";
-        case 20:
+        case token_equals:
             return "token_equals";
-        case 21:
+        case token_less_than:
             return "token_less_than";
-        case 22:
+        case token_greater_than:
             return "token_greater_than";
-        case 23:
+        case token_exit:
             return "token_exit";
-        case 24:
+        case token_id:
             return "token_id";
+        case token_end_of_input:
+            return "token_end_of_input";
         default:
             return "[!] LEXER ERROR IDENTIFYING TOKEN -> " + (local_token_set);
         }
@@ -316,6 +319,7 @@ public:
                 }
             }
         }
+        token_list.push_back({token_end_of_input,"\0"});
         if (execution_status == 0)
             displayToken();
         return execution_status;

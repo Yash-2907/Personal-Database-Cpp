@@ -28,7 +28,7 @@ public:
         };
         parser_obj = new parser(lexer_obj);
         parser_status = parser_obj->parse();
-        print_execution_result(parser_status, start);
+        print_execution_result(0, start);
     }
     void print_execution_result(int execution_status_lexer, auto start)
     {
@@ -51,6 +51,8 @@ int main()
         std::cout << std::endl;
         if (input_buffer == "exit")
             exit(0);
+        if (input_buffer == "reset")
+            return 100;
         if (input_buffer == "cls" || input_buffer == "clear")
         {
             system("cls");

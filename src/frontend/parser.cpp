@@ -5,8 +5,9 @@ class parser
 {
 private:
     lexer &lexer_obj;
-    std::vector<token> &token_list;
-
+    std::vector<token> &local_token_list;
+    token current_token;
+    int index=0,length=0;
     typedef enum
     {
         node_create_database,
@@ -63,7 +64,11 @@ private:
     }
 
 public:
-    parser(lexer &lexer_obj) : lexer_obj(lexer_obj), token_list(lexer_obj.fetch_vector()) {};
+    parser(lexer &lexer_obj) : lexer_obj(lexer_obj), local_token_list(lexer_obj.fetch_vector()){
+        length=local_token_list.size();
+        index=0;
+        current_token=local_token_list[0];
+    };
 
     std::string node_type_to_string(node_set local_node)
     {
@@ -96,7 +101,7 @@ public:
 
     int parse()
     {
-        for (auto &it : token_list)
+        for (auto &it : local_token_list)
         {
             switch (it.token_type)
             {
