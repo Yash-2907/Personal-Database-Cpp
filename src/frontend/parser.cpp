@@ -7,7 +7,7 @@ private:
     lexer &lexer_obj;
     std::vector<token> &local_token_list;
     token current_token;
-    int index=0,length=0;
+    int index = 0, length = 0;
     typedef enum
     {
         node_create_database,
@@ -28,6 +28,18 @@ private:
         std::vector<ast_node> children;
     };
 
+    token advance(token_set required_token)
+    {
+        if(current_token.token_type!=required_token)
+        {
+            std::cout<<red<<"[!] ERROR : UNEXPECTED TOKEN -> "<<current_token.value<<white<<std::endl;
+            return current_token;
+        }
+        index++;
+        current_token=local_token_list[index];
+        return current_token;
+    }
+
     int parse_insert()
     {
         return 0;
@@ -45,6 +57,7 @@ private:
 
     int parse_create()
     {
+        //syntax to be followed : create new database/table name_here
         return 0;
     }
 
@@ -64,10 +77,11 @@ private:
     }
 
 public:
-    parser(lexer &lexer_obj) : lexer_obj(lexer_obj), local_token_list(lexer_obj.fetch_vector()){
-        length=local_token_list.size();
-        index=0;
-        current_token=local_token_list[0];
+    parser(lexer &lexer_obj) : lexer_obj(lexer_obj), local_token_list(lexer_obj.fetch_vector())
+    {
+        length = local_token_list.size();
+        index = 0;
+        current_token = local_token_list[0];
     };
 
     std::string node_type_to_string(node_set local_node)
@@ -101,30 +115,27 @@ public:
 
     int parse()
     {
-        for (auto &it : local_token_list)
+        switch (current_token.token_type)
         {
-            switch (it.token_type)
-            {
-            case token_insert:
-                return parse_insert();
-            case token_delete:
-                return parse_delete();
-            case token_search:
-                return parse_search();
-            case token_create:
-                return parse_create();
-            case token_use:
-                return parse_use();
-            case token_exit:
-                return parse_exit();
-            case token_update:
-                return parse_update();
-            default:
-            {
-                std::cout << red << "[!] SYNTAX ERROR : UNDEFINED TOKEN -> " << it.value << white << std::endl;
-                return 1;
-            }
-            }
+        case token_insert:
+            return parse_insert();
+        case token_delete:
+            return parse_delete();
+        case token_search:
+            return parse_search();
+        case token_create:
+            return parse_create();
+        case token_use:
+            return parse_use();
+        case token_exit:
+            return parse_exit();
+        case token_update:
+            return parse_update();
+        default:
+        {
+            std::cout << red << "[!] SYNTAX ERROR : UNDEFINED TOKEN -> " << current_token.value << white << std::endl;
+            return 1;
+        }
         }
     }
 };
