@@ -1,13 +1,7 @@
 #ifndef __lexer_hpp
 #define __lexer_hpp
 
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#define blue "\033[34m"
-#define red "\e[0;31m"
-#define green "\e[0;32m"
-#define white "\e[0;37m"
+#include "headers.hpp"
 
 typedef enum
 {
@@ -254,7 +248,7 @@ public:
         current = input_buffer[0];
     }
 
-    std::vector<token>& fetch_vector()
+    std::vector<token> &fetch_vector()
     {
         return token_list;
     }

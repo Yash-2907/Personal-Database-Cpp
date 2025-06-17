@@ -1,10 +1,6 @@
-#include <iostream>
 #include "frontend/lexer.hpp"
 #include "frontend/parser.cpp"
-#include <chrono>
-#define blue "\033[34m"
-#define yellow "\033[33m"
-#define white "\e[0;37m"
+#include "frontend/headers.hpp"
 
 class evaluation_wrapper
 {

@@ -1,11 +1,5 @@
-#include <iostream>
+#include "headers.hpp"
 #include "lexer.hpp"
-#include <vector>
-
-#define blue "\033[34m"
-#define red "\e[0;31m"
-#define green "\e[0;32m"
-#define white "\e[0;37m"
 
 class parser
 {
@@ -22,8 +16,16 @@ private:
         node_delete,
         node_insert,
         node_update,
+        node_sub_values,
         node_exit
-    } node;
+    } node_set;
+
+    struct ast_node
+    {
+        node_set node_type;
+        std::string id_payload;
+        std::vector<ast_node> children;
+    };
 
     int parse_insert()
     {
@@ -63,7 +65,7 @@ private:
 public:
     parser(lexer &lexer_obj) : lexer_obj(lexer_obj), token_list(lexer_obj.fetch_vector()) {};
 
-    std::string node_type_to_string(node local_node)
+    std::string node_type_to_string(node_set local_node)
     {
         switch (local_node)
         {
@@ -81,11 +83,13 @@ public:
             return "node_insert";
         case node_update:
             return "node_update";
+        case node_sub_values:
+            return "node_subvalue";
         case node_exit:
             return "node_exit";
-        default :
+        default:
         {
-            return "[!] SYTNAX ERROR : UNIDENTIFIED NODE -> "+ local_node;
+            return "[!] SYTNAX ERROR : UNIDENTIFIED NODE -> " + local_node;
         }
         }
     }
