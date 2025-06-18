@@ -7,7 +7,7 @@ typedef enum
 {
     token_insert,
     token_into,
-    token_value,
+    token_values,
     token_string,
     token_integer,
     token_left_paren,
@@ -50,7 +50,7 @@ private:
     std::unordered_map<std::string, token_set> keyword_map = {
         {"insert", token_insert},
         {"into", token_into},
-        {"value", token_value},
+        {"values", token_values},
         {"delete", token_delete},
         {"from", token_from},
         {"search", token_search},
@@ -183,8 +183,8 @@ public:
             return "token_insert";
         case token_into:
             return "token_into";
-        case token_value:
-            return "token_value";
+        case token_values:
+            return "token_values";
         case token_string:
             return "token_string";
         case token_integer:
@@ -319,7 +319,7 @@ public:
                 }
             }
         }
-        token_list.push_back({token_end_of_input,"\0"});
+        token_list.push_back({token_end_of_input, "\0"});
         if (execution_status == 0)
             displayToken();
         return execution_status;

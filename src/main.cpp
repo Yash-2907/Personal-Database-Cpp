@@ -49,7 +49,7 @@ int main()
         std::cout << yellow << "privateDb : " << white;
         std::getline(std::cin, input_buffer);
         std::cout << std::endl;
-        if (input_buffer == "exit")
+        if (input_buffer == "close")
             exit(0);
         if (input_buffer == "reset")
             return 100;

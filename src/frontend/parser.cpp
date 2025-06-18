@@ -14,7 +14,9 @@ private:
         node_insert,
         node_update,
         node_sub_values,
-        node_exit
+        node_integer,
+        node_string,
+        node_exit,
     } node_set;
 
     struct ast_node
@@ -40,8 +42,8 @@ private:
         }
         previous_token = current_token;
         index++;
-        if(index<=length-1)
-        current_token = local_token_list[index];
+        if (index <= length - 1)
+            current_token = local_token_list[index];
         return 0;
     }
 
@@ -53,10 +55,53 @@ private:
     void print_job()
     {
         std::cout << "\nParsing successful, operation performed will be : " << node_type_to_string(evaluated_node.node_type) << " where the name given in payload will be : " << evaluated_node.payload << std::endl;
+        if(evaluated_node.children.size()>0)
+        {
+            std::cout<<"the children are : \n";
+            for(auto& it: evaluated_node.children)
+            {
+                std::cout<<it.payload<<" "<<node_type_to_string(it.node_type)<<std::endl;
+            }
+        }
+    }
+
+    ast_node parse_children()
+    {
+        ast_node child_node;
+        child_node.node_type = previous_token.token_type == token_integer ? node_integer : node_string;
+        child_node.payload = previous_token.value;
+        return child_node;
     }
 
     int parse_insert()
     {
+        // syntax to be followed : insert into table_name values (a,b,c...)
+        if (advance({token_insert}))
+            return 1;
+        else
+            evaluated_node.node_type = node_insert;
+        if (advance({token_into}))
+            return 1;
+        if (advance({token_id}))
+            return 1;
+        else
+            evaluated_node.payload = previous_token.value;
+        if (advance({token_values}))
+            return 1;
+        if (advance({token_left_paren}))
+            return 1;
+        while (current_token.token_type == token_id || current_token.token_type == token_integer)
+        {
+            advance({current_token.token_type});
+            evaluated_node.children.push_back(parse_children());
+            if (current_token.token_type == token_comma)
+                advance({token_comma});
+        }
+        if (advance({token_right_paren}))
+            return 1;
+        if (advance({token_end_of_input}))
+            return 1;
+        print_job();
         return 0;
     }
 
@@ -73,32 +118,32 @@ private:
     int parse_create()
     {
         // syntax to be followed : create new database/table name_here
-        if (advance({token_create}) == 1)
+        if (advance({token_create}))
             return 1;
-        if (advance({token_new}) == 1)
+        if (advance({token_new}))
             return 1;
-        if (advance({token_database, token_table}) == 1)
+        if (advance({token_database, token_table}))
             return 1;
         else
             evaluated_node.node_type = previous_token.token_type == token_database ? node_create_database : node_create_table;
-        if (advance({token_id}) == 1)
+        if (advance({token_id}))
             return 1;
         else
             evaluated_node.payload = previous_token.value;
-        if (advance({token_end_of_input}) == 1)
+        if (advance({token_end_of_input}))
             return 1;
-        //print_job();
+        // print_job();
         return 0;
     }
 
     int parse_use()
     {
         // syntax to be followed : use database_name
-        if (advance({token_use}) == 1)
+        if (advance({token_use}))
             return 1;
         else
             evaluated_node.node_type = node_use;
-        if (advance({token_id}) == 1)
+        if (advance({token_id}))
             return 1;
         else
             evaluated_node.payload = previous_token.value;
@@ -108,6 +153,14 @@ private:
 
     int parse_exit()
     {
+        // syntax to be followed : exit
+        if (advance({token_exit}) == 1)
+            return 1;
+        else
+            evaluated_node.node_type = node_exit;
+        if (advance({token_end_of_input}) == 1)
+            return 1;
+        print_job();
         return 0;
     }
 
@@ -144,6 +197,10 @@ public:
             return "node_update";
         case node_sub_values:
             return "node_subvalue";
+        case node_integer:
+            return "node_integer";
+        case node_string:
+            return "node_string";
         case node_exit:
             return "node_exit";
         default:
