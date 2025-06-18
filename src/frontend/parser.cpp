@@ -40,6 +40,7 @@ private:
         }
         previous_token = current_token;
         index++;
+        if(index<=length-1)
         current_token = local_token_list[index];
         return 0;
     }
@@ -47,6 +48,11 @@ private:
     bool check(std::set<token_set> required)
     {
         return required.find(current_token.token_type) != required.end();
+    }
+
+    void print_job()
+    {
+        std::cout << "\nParsing successful, operation performed will be : " << node_type_to_string(evaluated_node.node_type) << " where the name given in payload will be : " << evaluated_node.payload << std::endl;
     }
 
     int parse_insert()
@@ -79,14 +85,24 @@ private:
             return 1;
         else
             evaluated_node.payload = previous_token.value;
-        if(advance({token_end_of_input})==1)
+        if (advance({token_end_of_input}) == 1)
             return 1;
-        std::cout<<"so this was parsed and the operation to be perfomed is : "<<node_type_to_string(evaluated_node.node_type)<<" where the name given in payload will be : "<<evaluated_node.payload<<std::endl;
+        //print_job();
         return 0;
     }
 
     int parse_use()
     {
+        // syntax to be followed : use database_name
+        if (advance({token_use}) == 1)
+            return 1;
+        else
+            evaluated_node.node_type = node_use;
+        if (advance({token_id}) == 1)
+            return 1;
+        else
+            evaluated_node.payload = previous_token.value;
+        print_job();
         return 0;
     }
 
