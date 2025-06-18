@@ -4,10 +4,6 @@
 class parser
 {
 private:
-    lexer &lexer_obj;
-    std::vector<token> &local_token_list;
-    token current_token;
-    int index = 0, length = 0;
     typedef enum
     {
         node_create_database,
@@ -24,20 +20,33 @@ private:
     struct ast_node
     {
         node_set node_type;
-        std::string id_payload;
+        std::string payload;
         std::vector<ast_node> children;
     };
 
-    token advance(token_set required_token)
+    lexer &lexer_obj;
+    std::vector<token> &local_token_list;
+    token current_token, previous_token;
+    ast_node evaluated_node;
+    int index = 0, length = 0;
+
+    int advance(std::set<token_set> required_token)
     {
-        if(current_token.token_type!=required_token)
+        if (!check(required_token))
         {
-            std::cout<<red<<"[!] ERROR : UNEXPECTED TOKEN -> "<<current_token.value<<white<<std::endl;
-            return current_token;
+            std::cout << std::endl
+                      << red << "[!] ERROR : EXPECTED " << lexer_obj.token_type_to_string(*required_token.begin()) << " BUT RECIEVED " << lexer_obj.token_type_to_string(current_token.token_type) << " ==> { " << current_token.value << " } " << white << std::endl;
+            return 1;
         }
+        previous_token = current_token;
         index++;
-        current_token=local_token_list[index];
-        return current_token;
+        current_token = local_token_list[index];
+        return 0;
+    }
+
+    bool check(std::set<token_set> required)
+    {
+        return required.find(current_token.token_type) != required.end();
     }
 
     int parse_insert()
@@ -57,7 +66,22 @@ private:
 
     int parse_create()
     {
-        //syntax to be followed : create new database/table name_here
+        // syntax to be followed : create new database/table name_here
+        if (advance({token_create}) == 1)
+            return 1;
+        if (advance({token_new}) == 1)
+            return 1;
+        if (advance({token_database, token_table}) == 1)
+            return 1;
+        else
+            evaluated_node.node_type = previous_token.token_type == token_database ? node_create_database : node_create_table;
+        if (advance({token_id}) == 1)
+            return 1;
+        else
+            evaluated_node.payload = previous_token.value;
+        if(advance({token_end_of_input})==1)
+            return 1;
+        std::cout<<"so this was parsed and the operation to be perfomed is : "<<node_type_to_string(evaluated_node.node_type)<<" where the name given in payload will be : "<<evaluated_node.payload<<std::endl;
         return 0;
     }
 
