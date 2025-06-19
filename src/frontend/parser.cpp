@@ -57,7 +57,7 @@ private:
 
     void print_job(ast_node &node, int depth = 0)
     {
-        std::string indent(depth * 2, ' ');
+        std::string indent(depth * 3, ' ');
         if (depth == 0)
             std::cout << green << "\nParsing Successful :\n"
                       << white;
@@ -188,7 +188,7 @@ private:
 
     int parse_update()
     {
-        // syntax to be followed : update table_name to (name=yash,surname=gupta) where (name=yash / result<100 / result>100)
+        // syntax to be followed : update table_name to (name=yash,surname=gupta,..) where (name=yash / result<100 / result>100)
         if (advance({token_update}))
             return 1;
         if (advance({token_id}))
@@ -199,16 +199,28 @@ private:
             return 1;
         if (advance({token_left_paren}))
             return 1;
-        if (advance({token_id}))
-            return 1;
-        else
-            evaluated_node.children.push_back(parse_children());
-        if (advance({token_equals}))
-            return 1;
-        if (advance({token_string, token_integer}))
-            return 1;
-        else
-            evaluated_node.children.back().children.push_back(parse_children());
+        while (current_token.token_type == token_id)
+        {
+            if (advance({token_id}))
+                return 1;
+            else
+                evaluated_node.children.push_back(parse_children());
+            if (advance({token_equals}))
+                return 1;
+            if (advance({token_string, token_integer}))
+                return 1;
+            else
+                evaluated_node.children.back().children.push_back(parse_children());
+            if (current_token.token_type == token_comma)
+                advance({token_comma});
+            else if (current_token.token_type == token_right_paren)
+                break;
+            else
+            {
+                std::cout<<red<< "[!] PARSER ERROR : EXPECTED A COMMA BEFORE UPDATING ANOTHER VALUE OR ENDING PARENTHESIS BUT RECIEVED ==> {"<<current_token.value<<"}\n"<<white;
+                return 1;
+            }
+        }
         if (advance({token_right_paren}))
             return 1;
         if (advance({token_where}))
