@@ -167,6 +167,38 @@ private:
 
     int parse_search()
     {
+        //syntax to use : search in table_name where (a>10 / b=20 / c<30)
+        if(advance({token_search})) return 1;
+        if(advance({token_in})) return 1;
+        if(advance({token_id})) return 1;
+        else evaluated_node.payload=previous_token.value;
+        if(advance({token_where})) return 1;
+        if (advance({token_left_paren}))
+            return 1;
+        if (advance({token_id}))
+            return 1;
+        else
+            evaluated_node.children.push_back(parse_children());
+        if (advance({token_less_than, token_greater_than, token_equals}))
+            return 1;
+        else
+        {
+            if (previous_token.token_type == token_less_than)
+                evaluated_node.node_type = node_condition_less;
+            else if (previous_token.token_type == token_greater_than)
+                evaluated_node.node_type = node_condition_greater;
+            else
+                evaluated_node.node_type = node_condition_equals;
+        }
+        if (advance({token_string, token_integer}))
+            return 1;
+        else
+            evaluated_node.children.back().children.push_back(parse_children());
+        if (advance({token_right_paren}))
+            return 1;
+        if (advance({token_end_of_input}))
+            return 1;
+        print_job(evaluated_node);
         return 0;
     }
 
