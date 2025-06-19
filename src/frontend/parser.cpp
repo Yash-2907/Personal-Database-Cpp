@@ -19,6 +19,7 @@ private:
         node_sub_values,
         node_integer,
         node_string,
+        node_id,
         node_exit,
     } node_set;
 
@@ -81,7 +82,7 @@ private:
     ast_node parse_children()
     {
         ast_node child_node;
-        child_node.node_type = previous_token.token_type == token_integer ? node_integer : node_string;
+        child_node.node_type = previous_token.token_type == token_integer ? node_integer : previous_token.token_type==token_id ? node_id : node_string;
         child_node.payload = previous_token.value;
         return child_node;
     }
@@ -129,23 +130,29 @@ private:
 
     int parse_delete()
     {
-        //syntax to be followed : delete from table_name where (a>10 / b=10 / c<10)
-        if(advance({token_delete})) return 1;
+        // syntax to be followed : delete from table_name where (a>10 / b=10 / c<10)
+        if (advance({token_delete}))
+            return 1;
         if (advance({token_from}))
             return 1;
         if (advance({token_id}))
             return 1;
-        else{
-            evaluated_node.payload=previous_token.value;
+        else
+        {
+            evaluated_node.payload = previous_token.value;
         }
         if (advance({token_where}))
             return 1;
         if (advance({token_left_paren}))
             return 1;
-        if(advance({token_id})) return 1;
-        else evaluated_node.children.push_back(parse_children());
-        if(advance({token_less_than,token_greater_than,token_equals})) return 1;
-        else{
+        if (advance({token_id}))
+            return 1;
+        else
+            evaluated_node.children.push_back(parse_children());
+        if (advance({token_less_than, token_greater_than, token_equals}))
+            return 1;
+        else
+        {
             if (previous_token.token_type == token_less_than)
                 evaluated_node.node_type = node_condition_less;
             else if (previous_token.token_type == token_greater_than)
@@ -167,12 +174,17 @@ private:
 
     int parse_search()
     {
-        //syntax to use : search in table_name where (a>10 / b=20 / c<30)
-        if(advance({token_search})) return 1;
-        if(advance({token_in})) return 1;
-        if(advance({token_id})) return 1;
-        else evaluated_node.payload=previous_token.value;
-        if(advance({token_where})) return 1;
+        // syntax to use : search in table_name where (a>10 / b=20 / c<30)
+        if (advance({token_search}))
+            return 1;
+        if (advance({token_in}))
+            return 1;
+        if (advance({token_id}))
+            return 1;
+        else
+            evaluated_node.payload = previous_token.value;
+        if (advance({token_where}))
+            return 1;
         if (advance({token_left_paren}))
             return 1;
         if (advance({token_id}))
@@ -204,7 +216,7 @@ private:
 
     int parse_create()
     {
-        // syntax to be followed : create new database/table name_here
+        // syntax to be followed : create new database name_here , create new table name_here (name:string,roll_num:int,present:boolean)
         if (advance({token_create}))
             return 1;
         if (advance({token_new}))
@@ -234,6 +246,7 @@ private:
             return 1;
         else
             evaluated_node.payload = previous_token.value;
+        if(advance({token_end_of_input})) return 1;
         print_job(evaluated_node);
         return 0;
     }
@@ -283,7 +296,8 @@ private:
                 break;
             else
             {
-                std::cout<<red<< "[!] PARSER ERROR : EXPECTED A COMMA BEFORE UPDATING ANOTHER VALUE OR ENDING PARENTHESIS BUT RECIEVED ==> {"<<current_token.value<<"}\n"<<white;
+                std::cout << red << "[!] PARSER ERROR : EXPECTED A COMMA BEFORE UPDATING ANOTHER VALUE OR ENDING PARENTHESIS BUT RECIEVED ==> {" << current_token.value << "}\n"
+                          << white;
                 return 1;
             }
         }
@@ -358,6 +372,8 @@ public:
             return "node_condition_equals";
         case node_condition_greater:
             return "node_condition_greater";
+        case node_id:
+            return "node_id";
         case node_exit:
             return "node_exit";
         default:

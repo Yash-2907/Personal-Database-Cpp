@@ -1,0 +1,2 @@
+1. for the parser create function table needs to have ( ) ahead of it and should work different than create db
+2. implement and or not operations in conditional part
