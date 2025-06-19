@@ -37,7 +37,7 @@ private:
         if (!check(required_token))
         {
             std::cout << std::endl
-                      << red << "[!] ERROR : EXPECTED " << lexer_obj.token_type_to_string(*required_token.begin()) << " BUT RECIEVED " << lexer_obj.token_type_to_string(current_token.token_type) << " ==> { " << current_token.value << " } " << white << std::endl;
+                      << red << "[!] PARSER ERROR : EXPECTED " << lexer_obj.token_type_to_string(*required_token.begin()) << " BUT RECIEVED " << lexer_obj.token_type_to_string(current_token.token_type) << " ==> { " << current_token.value << " } " << white << std::endl;
             return 1;
         }
         previous_token = current_token;
@@ -54,13 +54,14 @@ private:
 
     void print_job()
     {
-        std::cout <<green<< "\nParsing successful :\n"<<white<<"Operation performed will be : " <<cyan<< node_type_to_string(evaluated_node.node_type) <<white<< " where the name given in payload will be : " <<cyan<< evaluated_node.payload <<white<< std::endl;
+        std::cout << green << "\nParsing successful :\n"
+                  << white << "Operation performed will be : " << cyan << node_type_to_string(evaluated_node.node_type) << white << " where the name given in payload will be : " << cyan << evaluated_node.payload << white << std::endl;
         if (evaluated_node.children.size() > 0)
         {
             std::cout << "the children are : \n";
             for (auto &it : evaluated_node.children)
             {
-                std::cout <<cyan<< it.payload <<white<< " [" << node_type_to_string(it.node_type) <<"]\n";
+                std::cout << cyan << it.payload << white << " [" << node_type_to_string(it.node_type) << "]\n";
             }
         }
     }
@@ -90,15 +91,24 @@ private:
             return 1;
         if (advance({token_left_paren}))
             return 1;
-        while (current_token.token_type == token_id || current_token.token_type == token_integer)
+        while (current_token.token_type == token_string || current_token.token_type == token_integer)
         {
             advance({current_token.token_type});
             evaluated_node.children.push_back(parse_children());
             if (current_token.token_type == token_comma)
                 advance({token_comma});
         }
-        if (advance({token_right_paren}))
+        if (current_token.token_type != token_right_paren)
+        {
+            std::cout << red << "\n[!] PARSER ERROR : EXPECTED INTEGER OR STRING INSIDE PARENTHESIS BUT RECIEVED -> {" << current_token.value << "}\n"
+                      << white << std::endl;
             return 1;
+        }
+        else
+        {
+            if (advance({token_right_paren}))
+                return 1;
+        }
         if (advance({token_end_of_input}))
             return 1;
         print_job();
@@ -205,7 +215,7 @@ public:
             return "node_exit";
         default:
         {
-            return "[!] SYTNAX ERROR : UNIDENTIFIED NODE -> " + local_node;
+            return "[!] PARSER SYNTAX ERROR : UNIDENTIFIED NODE -> " + local_node;
         }
         }
     }
@@ -230,7 +240,7 @@ public:
             return parse_update();
         default:
         {
-            std::cout << red << "[!] SYNTAX ERROR : UNDEFINED TOKEN -> " << current_token.value << white << std::endl;
+            std::cout << red << "[!] PARSER SYNTAX ERROR : UNDEFINED TOKEN -> " << current_token.value << white << std::endl;
             return 1;
         }
         }
