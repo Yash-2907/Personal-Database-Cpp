@@ -129,6 +129,39 @@ private:
 
     int parse_delete()
     {
+        //syntax to be followed : delete from table_name where (a>10 / b=10 / c<10)
+        if(advance({token_delete})) return 1;
+        if (advance({token_from}))
+            return 1;
+        if (advance({token_id}))
+            return 1;
+        else{
+            evaluated_node.payload=previous_token.value;
+        }
+        if (advance({token_where}))
+            return 1;
+        if (advance({token_left_paren}))
+            return 1;
+        if(advance({token_id})) return 1;
+        else evaluated_node.children.push_back(parse_children());
+        if(advance({token_less_than,token_greater_than,token_equals})) return 1;
+        else{
+            if (previous_token.token_type == token_less_than)
+                evaluated_node.node_type = node_condition_less;
+            else if (previous_token.token_type == token_greater_than)
+                evaluated_node.node_type = node_condition_greater;
+            else
+                evaluated_node.node_type = node_condition_equals;
+        }
+        if (advance({token_string, token_integer}))
+            return 1;
+        else
+            evaluated_node.children.back().children.push_back(parse_children());
+        if (advance({token_right_paren}))
+            return 1;
+        if (advance({token_end_of_input}))
+            return 1;
+        print_job(evaluated_node);
         return 0;
     }
 
@@ -189,6 +222,7 @@ private:
     int parse_update()
     {
         // syntax to be followed : update table_name to (name=yash,surname=gupta,..) where (name=yash / result<100 / result>100)
+        // take note that currently the children are stored as evaluted_node->children={update_1,update_2.....,condition} so use condition from end of array
         if (advance({token_update}))
             return 1;
         if (advance({token_id}))
