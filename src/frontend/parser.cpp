@@ -54,13 +54,13 @@ private:
 
     void print_job()
     {
-        std::cout << "\nParsing successful, operation performed will be : " << node_type_to_string(evaluated_node.node_type) << " where the name given in payload will be : " << evaluated_node.payload << std::endl;
-        if(evaluated_node.children.size()>0)
+        std::cout <<green<< "\nParsing successful :\n"<<white<<"Operation performed will be : " <<cyan<< node_type_to_string(evaluated_node.node_type) <<white<< " where the name given in payload will be : " <<cyan<< evaluated_node.payload <<white<< std::endl;
+        if (evaluated_node.children.size() > 0)
         {
-            std::cout<<"the children are : \n";
-            for(auto& it: evaluated_node.children)
+            std::cout << "the children are : \n";
+            for (auto &it : evaluated_node.children)
             {
-                std::cout<<it.payload<<" "<<node_type_to_string(it.node_type)<<std::endl;
+                std::cout <<cyan<< it.payload <<white<< " [" << node_type_to_string(it.node_type) <<"]\n";
             }
         }
     }
@@ -132,7 +132,7 @@ private:
             evaluated_node.payload = previous_token.value;
         if (advance({token_end_of_input}))
             return 1;
-        // print_job();
+        print_job();
         return 0;
     }
 

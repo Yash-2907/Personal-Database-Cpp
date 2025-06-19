@@ -16,5 +16,6 @@
 #define green "\e[0;32m"
 #define white "\e[0;37m"
 #define yellow "\033[33m"
+#define cyan "\033[36m"
 
 #endif

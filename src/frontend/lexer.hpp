@@ -238,8 +238,9 @@ public:
 
     void displayToken()
     {
+        std::cout<<green<<"\nLexical Analysis Successful :\n"<<white;
         for (auto &it : token_list)
-            std::cout << it.value << " [" << token_type_to_string(it.token_type) << "]" << std::endl;
+            std::cout <<cyan<< it.value <<white<< " [" << token_type_to_string(it.token_type) << "]" << std::endl;
     }
 
     void initialize(std::string input_buffer)
