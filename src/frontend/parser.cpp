@@ -8,6 +8,9 @@ private:
     {
         node_create_database,
         node_create_table,
+        node_condition_less,
+        node_condition_greater,
+        node_condition_equals,
         node_use,
         node_search,
         node_delete,
@@ -52,18 +55,27 @@ private:
         return required.find(current_token.token_type) != required.end();
     }
 
-    void print_job()
+    void print_job(ast_node &node, int depth = 0)
     {
-        std::cout << green << "\nParsing successful :\n"
-                  << white << "Operation performed will be : " << cyan << node_type_to_string(evaluated_node.node_type) << white << " where the name given in payload will be : " << cyan << evaluated_node.payload << white << std::endl;
-        if (evaluated_node.children.size() > 0)
+        std::string indent(depth * 2, ' ');
+        if (depth == 0)
+            std::cout << green << "\nParsing Successful :\n"
+                      << white;
+
+        std::cout << indent << "{\n";
+        std::cout << indent << "  Type    : " << cyan << node_type_to_string(node.node_type) << white << "\n";
+        std::cout << indent << "  Payload : " << yellow << node.payload << white << "\n";
+
+        if (!node.children.empty())
         {
-            std::cout << "the children are : \n";
-            for (auto &it : evaluated_node.children)
+            std::cout << indent << "  Children:\n";
+            for (auto &child : node.children)
             {
-                std::cout << cyan << it.payload << white << " [" << node_type_to_string(it.node_type) << "]\n";
+                print_job(child, depth + 1);
             }
         }
+
+        std::cout << indent << "}\n";
     }
 
     ast_node parse_children()
@@ -111,7 +123,7 @@ private:
         }
         if (advance({token_end_of_input}))
             return 1;
-        print_job();
+        print_job(evaluated_node);
         return 0;
     }
 
@@ -142,7 +154,7 @@ private:
             evaluated_node.payload = previous_token.value;
         if (advance({token_end_of_input}))
             return 1;
-        print_job();
+        print_job(evaluated_node);
         return 0;
     }
 
@@ -157,7 +169,7 @@ private:
             return 1;
         else
             evaluated_node.payload = previous_token.value;
-        print_job();
+        print_job(evaluated_node);
         return 0;
     }
 
@@ -170,12 +182,63 @@ private:
             evaluated_node.node_type = node_exit;
         if (advance({token_end_of_input}) == 1)
             return 1;
-        print_job();
+        print_job(evaluated_node);
         return 0;
     }
 
     int parse_update()
     {
+        // syntax to be followed : update table_name to (name=yash,surname=gupta) where (name=yash / result<100 / result>100)
+        if (advance({token_update}))
+            return 1;
+        if (advance({token_id}))
+            return 1;
+        else
+            evaluated_node.payload = previous_token.value;
+        if (advance({token_to}))
+            return 1;
+        if (advance({token_left_paren}))
+            return 1;
+        if (advance({token_id}))
+            return 1;
+        else
+            evaluated_node.children.push_back(parse_children());
+        if (advance({token_equals}))
+            return 1;
+        if (advance({token_string, token_integer}))
+            return 1;
+        else
+            evaluated_node.children.back().children.push_back(parse_children());
+        if (advance({token_right_paren}))
+            return 1;
+        if (advance({token_where}))
+            return 1;
+        if (advance({token_left_paren}))
+            return 1;
+        if (advance({token_id}))
+            return 1;
+        else
+            evaluated_node.children.push_back(parse_children());
+        if (advance({token_less_than, token_greater_than, token_equals}))
+            return 1;
+        else
+        {
+            if (previous_token.token_type == token_less_than)
+                evaluated_node.node_type = node_condition_less;
+            else if (previous_token.token_type == token_greater_than)
+                evaluated_node.node_type = node_condition_greater;
+            else
+                evaluated_node.node_type = node_condition_equals;
+        }
+        if (advance({token_string, token_integer}))
+            return 1;
+        else
+            evaluated_node.children.back().children.push_back(parse_children());
+        if (advance({token_right_paren}))
+            return 1;
+        if (advance({token_end_of_input}))
+            return 1;
+        print_job(evaluated_node);
         return 0;
     }
 
@@ -211,6 +274,12 @@ public:
             return "node_integer";
         case node_string:
             return "node_string";
+        case node_condition_less:
+            return "node_condition_less";
+        case node_condition_equals:
+            return "node_condition_equals";
+        case node_condition_greater:
+            return "node_condition_greater";
         case node_exit:
             return "node_exit";
         default:

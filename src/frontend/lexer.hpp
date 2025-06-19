@@ -30,6 +30,7 @@ typedef enum
     token_greater_than,
     token_exit,
     token_id,
+    token_to,
     token_end_of_input,
 } token_set;
 
@@ -63,6 +64,7 @@ private:
         {"update", token_update},
         {"where", token_where},
         {"with", token_with},
+        {"to", token_to},
         {"exit", token_exit},
     };
 
@@ -229,6 +231,8 @@ public:
             return "token_exit";
         case token_id:
             return "token_id";
+        case token_to:
+            return "token_to";
         case token_end_of_input:
             return "token_end_of_input";
         default:
@@ -238,9 +242,10 @@ public:
 
     void displayToken()
     {
-        std::cout<<green<<"\nLexical Analysis Successful :\n"<<white;
+        std::cout << green << "\nLexical Analysis Successful :\n"
+                  << white;
         for (auto &it : token_list)
-            std::cout <<cyan<< it.value <<white<< " [" << token_type_to_string(it.token_type) << "]" << std::endl;
+            std::cout << cyan << it.value << white << " [" << token_type_to_string(it.token_type) << "]" << std::endl;
     }
 
     void initialize(std::string input_buffer)
